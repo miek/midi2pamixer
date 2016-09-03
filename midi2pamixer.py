@@ -3,20 +3,27 @@ pulse = Pulse('midi2pamixer')
 from pygame import midi
 import time
 
-sliders = range(0, 8)
+def handle_mute(channel, value):
+    pulse.mute(get_pulse_channel(channel), value == 127)
+
+def handle_slider(channel, value):
+    pulse.volume_set_all_chans(get_pulse_channel(channel), value / 127.0)
+
+control_group_handlers = [
+    (range(48, 56), handle_mute),
+    (range(0, 8), handle_slider),
+]
 
 def get_pulse_channel(channel):
-    if channel < len(pulse.sink_input_list()):
-        return pulse.sink_input_list()[cc]
-
-def handle_slider(sink, value):
-    pulse.volume_set_all_chans(sink, value / 127.0)
+    return pulse.sink_input_list()[channel]
 
 def handle_cc(cc, value):
-    if cc in sliders: # slider
-        sink = get_pulse_channel(cc - sliders[0])
-        if sink:
-            handle_slider(sink, value)
+    for h in control_group_handlers:
+        cc_range, cc_handler = h
+        if cc in cc_range:
+            channel = cc - cc_range[0]
+            if channel < len(pulse.sink_input_list()):
+                cc_handler(channel, value)
 
 midi.init()
 inp = midi.Input(3)
