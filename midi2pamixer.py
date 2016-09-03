@@ -1,7 +1,8 @@
+import mido
 from pulsectl import Pulse
-pulse = Pulse('midi2pamixer')
-from pygame import midi
 import time
+pulse = Pulse('midi2pamixer')
+mido.set_backend('mido.backends.rtmidi')
 
 def handle_mute(channel, value):
     pulse.mute(get_pulse_channel(channel), value == 127)
@@ -25,12 +26,9 @@ def handle_cc(cc, value):
             if channel < len(pulse.sink_input_list()):
                 cc_handler(channel, value)
 
-midi.init()
-inp = midi.Input(3)
+midi_input = mido.open_input("nanoKONTROL2 36:0")
 while True:
-    if inp.poll():
-        for event in inp.read(10):
-            ((status, cc, value, data3), timestamp) = event
-            if status == 176:
-                handle_cc(cc, value)
+    for msg in midi_input.iter_pending():
+        if msg.type == 'control_change':
+            handle_cc(msg.control, msg.value)
     time.sleep(0.01)
