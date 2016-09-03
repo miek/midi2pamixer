@@ -28,10 +28,15 @@ def handle_cc(cc, value):
             if channel < len(pulse.sink_input_list()):
                 cc_handler(channel, value)
 
+def handle_pulse_event(event):
+    print('Pulse event', event)
+
 midi_input = mido.open_input("nanoKONTROL2 36:0")
 midi_output = mido.open_output("nanoKONTROL2 36:0")
+pulse.event_mask_set('all')
+pulse.event_callback_set(handle_pulse_event)
 while True:
     for msg in midi_input.iter_pending():
         if msg.type == 'control_change':
             handle_cc(msg.control, msg.value)
-    time.sleep(0.01)
+    pulse.event_listen(0.001)
