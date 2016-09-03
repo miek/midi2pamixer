@@ -6,6 +6,8 @@ mido.set_backend('mido.backends.rtmidi')
 
 def handle_mute(channel, value):
     pulse.mute(get_pulse_channel(channel), value == 127)
+    msg = mido.Message('control_change', control=channel+48, value=value)
+    midi_output.send(msg)
 
 def handle_slider(channel, value):
     pulse.volume_set_all_chans(get_pulse_channel(channel), value / 127.0)
@@ -27,6 +29,7 @@ def handle_cc(cc, value):
                 cc_handler(channel, value)
 
 midi_input = mido.open_input("nanoKONTROL2 36:0")
+midi_output = mido.open_output("nanoKONTROL2 36:0")
 while True:
     for msg in midi_input.iter_pending():
         if msg.type == 'control_change':
