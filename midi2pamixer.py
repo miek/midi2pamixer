@@ -5,14 +5,18 @@ import time
 
 sliders = range(0, 8)
 
-def handle_slider(channel, value):
+def get_pulse_channel(channel):
     if channel < len(pulse.sink_input_list()):
-        sink = pulse.sink_input_list()[cc]
-        pulse.volume_set_all_chans(sink, value / 127.0)
+        return pulse.sink_input_list()[cc]
+
+def handle_slider(sink, value):
+    pulse.volume_set_all_chans(sink, value / 127.0)
 
 def handle_cc(cc, value):
     if cc in sliders: # slider
-        handle_slider(cc - sliders[0], value)
+        sink = get_pulse_channel(cc - sliders[0])
+        if sink:
+            handle_slider(sink, value)
 
 midi.init()
 inp = midi.Input(3)
