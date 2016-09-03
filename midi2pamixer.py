@@ -15,5 +15,6 @@ while True:
     if inp.poll():
         for event in inp.read(10):
             ((status, cc, value, data3), timestamp) = event
-            handle_input(cc, value)
+            if status == 176:
+                handle_input(cc, value)
     time.sleep(0.01)
