@@ -13,6 +13,7 @@ class channel:
 
         self.muted = sink.mute == 1
         self.set_led('mute', self.muted)
+        self.set_led('rec', True)
 
     def get_sink(self):
         return get_sink_by_index(self.sink_index)
