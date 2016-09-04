@@ -10,7 +10,9 @@ class channel:
     def __init__(self, channel_id, sink_index):
         self.channel_id, self.sink_index = channel_id, sink_index
         sink = self.get_sink()
-        self.set_mute(sink.mute == 1)
+
+        self.muted = sink.mute == 1
+        self.set_led('mute', self.muted)
 
     def get_sink(self):
         return get_sink_by_index(self.sink_index)
